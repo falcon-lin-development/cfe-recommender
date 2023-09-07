@@ -20,6 +20,11 @@ class Movie(models.Model):
         max_digits=5, decimal_places=2, blank=True, null=True
     )
 
+    def __str__(self):
+        if not self.release_date:
+            return f"{self.title}"
+        return f"{self.title} ({self.release_date.year})"
+
     def rating_avg_display(self):
         now = timezone.now()
         if not self.rating_last_updated:
