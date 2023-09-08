@@ -46,6 +46,9 @@ class Movie(models.Model):
             return f"{self.title}"
         return f"{self.title} ({self.release_date.year})"
 
+    def get_absolute_url(self):
+        return f"/movies/{self.id}/"
+
     def rating_avg_display(self):
         now = timezone.now()
         if not self.rating_last_updated:
