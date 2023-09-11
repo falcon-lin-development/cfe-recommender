@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include # new
 
+from ratings import views as ratings_views
 urlpatterns = [
     path('movies/', include("movies.urls")),
     path('accounts/', include("allauth.urls")),
     path('admin/', admin.site.urls),
+    path("rate/movie/", ratings_views.rate_movie_view, name="rate-movie"),
 ]
