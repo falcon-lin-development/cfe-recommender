@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
@@ -5,6 +6,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.utils import timezone
+
+
 # Create your models here.
 User = settings.AUTH_USER_MODEL
 
@@ -20,9 +23,24 @@ class RatingQuerySet(models.QuerySet):
     def avg(self):
         return self.aggregate(average=models.Avg("value"))["average"]
 
+    def movies(self):
+        Movie = apps.get_model("movies", "Movie")
+        ctype = ContentType.objects.get_for_model(Movie)
+        return self.filter(content_type=ctype, active=True)
+
+    def as_object_dict(self, object_ids=[]):
+        qs = self.filter(
+            # movie__in=self.queryset
+            object_id__in=object_ids,
+        )
+        return {f"{x.object_id}": x.value for x in qs}
+
 class RatingManager(models.Manager):
     def get_queryset(self) -> QuerySet:
         return RatingQuerySet(self.model, using=self._db)
+
+    def movies(self):
+        return self.get_queryset().movies()
 
     def avg(self):
         self.get_queryset().avg()
