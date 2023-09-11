@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "profiles",
     "movies",
     "ratings",
+    "exports",
 ]
 
 SITE_ID = 1
@@ -152,3 +153,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_ROOT = BASE_DIR / 'local-cdn' / 'media'

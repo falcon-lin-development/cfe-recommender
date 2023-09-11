@@ -1,4 +1,5 @@
 src/data/movies_metadata.csv
+src/local-cdn/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
