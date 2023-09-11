@@ -1,6 +1,6 @@
 <div class="card shadow-sm">
   <div class="card-body">
-    <title>{{ object.title }}</title>
+    <title>{{ object.title }} <small>{{ object.id }}</small></title>
     <p class="card-text">{{ object.overview }}</p>
     <div class="d-flex justify-content-between align-items-center">
       <div class="btn-group">
@@ -8,16 +8,18 @@
           <a type="button" class="btn btn-sm btn-outline-secondary" 
             href="{{ object.get_absolute_url }}">View</a>
         {% endif %}
-
       </div>
 
       <div>
+
         <select class="form-control">
-          <option>1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option>5</option>
+          {% for choice in rating_choices %}
+            {% if choice is None %}
+              <option disabled selected>Pick a rating</option>
+            {% else %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endif %}
+          {% endfor %}
         </select>
         {% if object.rating_avg %}
         <small class="text-mute">
