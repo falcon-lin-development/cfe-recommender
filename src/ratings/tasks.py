@@ -1,6 +1,7 @@
 import random
 import time
 import datetime
+import decimal
 from celery import shared_task
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -58,11 +59,15 @@ def task_update_movie_ratings(object_id = None):
 
     for agg_rate in agg_ratings:
         qs = Movie.objects.filter(id=agg_rate["object_id"])
+        rating_avg = agg_rate["average"]
+        rating_count = agg_rate["count"]
+        rating_last_updated = timezone.now()
+        score = float(rating_avg * rating_count)
         qs.update(
-            rating_avg=agg_rate["average"],
-            rating_count=agg_rate["count"],
-            rating_last_updated=timezone.now(),
-
+            rating_avg=rating_avg,
+            rating_count=rating_count,
+            rating_last_updated=rating_last_updated,
+            score=score,
         )
     total_time = time.time() - start_time
     delta = datetime.timedelta(seconds=int(total_time))

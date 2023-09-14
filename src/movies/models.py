@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, F, Sum
 from django.db.models.query import QuerySet
 from django.utils import timezone
 from ratings.models import Rating
@@ -9,6 +9,18 @@ import datetime
 RATING_CACLULATION_INTERVAL = 3 # days
 
 class MovieQuerySet(models.QuerySet):
+    def popular(self, reverse=False):
+        ordering = "-score" if not reverse else "score"
+        return self.order_by(ordering)
+
+    def popular_calc(self, reverse=False):
+        ordering = "-score" if not reverse else "score"
+        return self.annotate(score=Sum(
+                F("rating_avg")* F("rating_count"),
+                output_field=models.FloatField()
+            )
+        ).order_by(ordering)
+
     def needs_updating(self):
         now = timezone.now()
         days_ago = now - datetime.timedelta(days=RATING_CACLULATION_INTERVAL)
@@ -38,6 +50,7 @@ class Movie(models.Model):
     rating_avg = models.DecimalField(
         max_digits=5, decimal_places=2, blank=True, null=True
     )
+    score = models.FloatField(blank=True, null=True)
 
     objects = MovieManager()
 
