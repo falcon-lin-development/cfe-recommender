@@ -4,6 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.views.decorators.http import require_http_methods
 from .models import Rating
 
+from ml import tasks as ml_tasks
+
 # Create your views here.
 @require_http_methods(["POST"])
 def rate_movie_view(request):
@@ -27,8 +29,23 @@ def rate_movie_view(request):
             value=rating_value,
         )
         if rating_obj.content_object is not None:
+            total_new_suggestions = request.session.get('total-new-suggestions', 0)
+
+            items_rated = request.session.get('items-rated', 0)  
+            items_rated += 1
+            request.session['items-rated'] = items_rated
+            if items_rated % 5 == 0:
+                print("trigger new suggestions")
+                users_id = [user.id]
+                ml_tasks.batch_users_prediction_task.apply_async(
+                    kwargs={
+                        "user_ids": users_id,
+                        "start_page": total_new_suggestions,
+                        "max_pages": 2,
+                    }
+                )
             message = "<span class='bg-success text-light px-3 py-1 rounded'>Thank you for rating.</span>"
-            response =  HttpResponse("rating", status=200)
+            response =  HttpResponse(message, status=200)
             response['HX-Trigger-After-Settle'] = 'did-rate-movie'
             return response
    

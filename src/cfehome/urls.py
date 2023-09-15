@@ -18,7 +18,9 @@ from django.contrib import admin
 from django.urls import path, include # new
 
 from ratings import views as ratings_views
+from dashboard import views as dashboard_views
 urlpatterns = [
+    path('', dashboard_views.home_view, name="home"),
     path('movies/', include("movies.urls")),
     path('accounts/', include("allauth.urls")),
     path('admin/', admin.site.urls),

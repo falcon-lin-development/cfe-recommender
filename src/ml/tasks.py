@@ -48,6 +48,3 @@ def batch_users_prediction_task(user_ids = None, start_page=0, offset=50, max_pa
     
 
 
-@shared_task
-def batch_single_user_prediction_task(user_id=1,start_page=0, offset=250, max_pages=100_000):
-    return batch_users_prediction_task(user_ids=[user_id], start_page=start_page, offset=offset, max_pages=max_pages)
