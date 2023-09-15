@@ -11,7 +11,7 @@ def train_surprise_model_task():
 
 
 @shared_task
-def batch_users_prediction_task(user_ids = None, start_page=0, offset=250, max_pages=1000):
+def batch_users_prediction_task(user_ids = None, start_page=0, offset=50, max_pages=1000):
     model = ml_utils.load_model()
     Suggestion = apps.get_model("suggestions", "Suggestion")
     ctype = ContentType.objects.get(app_label="movies", model="movie")
@@ -23,9 +23,15 @@ def batch_users_prediction_task(user_ids = None, start_page=0, offset=250, max_p
     movie_ids = Movie.objects.all().popular() \
         .values_list("id", flat=True)[start_page:end_page]
 
+    recently_suggested = Suggestion.objects.get_recently_suggested(movie_ids=movie_ids, user_ids=user_ids)  
     new_suggestions = []
     for movie_id in movie_ids:
+        users_done = recently_suggested.get(str(movie_id), [])
         for user_id in user_ids:
+            if user_id in users_done:
+                print(movie_id, user_id, "already done")
+                continue
+
             pred = model.predict(uid=user_id, iid=movie_id).est
             # ml_utils.save_prediction(user_id, movie_id, pred)   
             data ={
