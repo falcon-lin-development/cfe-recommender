@@ -67,6 +67,8 @@ class Rating(models.Model):
 
 def rateing_post_save(sender, instance, created, *args, **kwargs):
     if created:
+        Suggestion = apps.get_model("suggestions", "Suggestion")
+
         _id = instance.id
         if instance.active:
             qs = Rating.objects.filter(
@@ -78,5 +80,18 @@ def rateing_post_save(sender, instance, created, *args, **kwargs):
                 qs = qs.exclude(active_update_timestamp__isnull=False)
                 qs.update(active=False, active_update_timestamp=timezone.now())
             # qs.delete()
+            suggestion_qs = Suggestion.objects.filter(
+                content_type=instance.content_type,
+                object_id=instance.object_id,
+                user=instance.user,
+                did_rate=False
+            )
+            if suggestion_qs.exists():
+                suggestion_qs.update(
+                    did_rate=True,
+                    did_rate_timestamp=timezone.now(),
+                    rating_value=instance.value
+                )
+
 
 post_save.connect(rateing_post_save, sender=Rating)
