@@ -1,6 +1,7 @@
 import os
 
 from celery import Celery
+from celery.schedules import crontab
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cfehome.settings')
 
@@ -19,10 +20,31 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     "run_movide_rating_avg_every_30": {
         "task": "task_update_movie_ratings",
-        "schedule":  60*30.0,
+        "schedule":  60*30.0, # 30 minutes
     },
-    "run_rating_export_every_hour": {
+    "daily_movie_idx_refresh":{
+        "task": "movies.tasks.update_movie_position_embedding_idx",
+        "schedule": crontab(hour=1, minute=0), # 24hours
+    },
+    "daily_rating_dataset_export":{
         "task": "export_rating_dataset_task",
-        "schedule":  60*60.0,
-    }
+        "schedule": crontab(hour=1, minute=30), # 24hours
+    },
+    "daily_movie_dataset_export":{
+        "task": "export_movie_dataset_task",
+        "schedule": crontab(hour=2, minute=45), # 24hours
+    },
+    "daily_train_surprise_model":{
+        "task": "ml.tasks.train_surprise_model_task",
+        "schedule": crontab(hour=3, minute=0), # 24hours
+    },
+    "daily_model_inference":{
+        "task": "ml.tasks.batch_users_prediction_task",
+        "schedule": crontab(hour=4, minute=30), # 24hours
+        "kwargs": {
+            "start_page": 0,
+            "offset":200, 
+            "max_pages": 5_000
+        },
+    },
 }

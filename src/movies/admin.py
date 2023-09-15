@@ -7,14 +7,18 @@ class MovieAdmin(admin.ModelAdmin):
     list_display = [
         
         "__str__",
+        "id",
+        "idx",
         "rating_count", 
-        "rating_last_updated", "rating_avg"
+        "rating_avg"
+        # "rating_last_updated",
     ]
     readonly_fields = [
         'id', 
+        "idx",
         "rating_avg", 
         "rating_count", 
-        "rating_avg_display"
+        # "rating_avg_display"
     ]
     search_fields = ['id']
 

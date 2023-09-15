@@ -25,6 +25,9 @@ def batch_users_prediction_task(user_ids = None, start_page=0, offset=50, max_pa
 
     recently_suggested = Suggestion.objects.get_recently_suggested(movie_ids=movie_ids, user_ids=user_ids)  
     new_suggestions = []
+    
+    if not movie_ids.exists():
+        return None
     for movie_id in movie_ids:
         users_done = recently_suggested.get(str(movie_id), [])
         for user_id in user_ids:
